@@ -1,0 +1,58 @@
+class Space
+{
+public:
+    Space();
+
+    string name;
+    Space* begin;
+    Space* parent;
+	
+    map<map<string,string>,map<string,string>> variables;
+
+    list<Space*> listSpace;
+	
+    void push_back(Space *item);
+    void push_back_variables(map<string, string> name, map<string, string> type);
+};
+
+int sum(int x,int y)
+{
+	Space std;
+}
+
+int main(int argc, char *argv[])
+{
+	int x = 5 ;
+	float y = 5.5;
+	
+	for(int i=0;i < 5;i++)
+	{
+		x++;
+	}
+	
+	while(x)
+	{
+		
+	}
+	
+	switch (x) 
+	{
+		case 'x':
+		{
+			if( 1 < 2)
+			{
+				inx x = 5;
+			}
+			else{
+			 int x = 5;
+			}
+			break;
+		}
+		case 2:
+		{
+			int z = 5;
+			break;
+		}
+    }
+	retrun 0;
+}

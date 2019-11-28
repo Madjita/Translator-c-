@@ -1,0 +1,25 @@
+MODULE Trees; // экспорт: Tree, Node, Insert, Search, Write, Init
+TYPE
+	Tree* = POINTER TO Node;
+	Node* = RECORD
+ 		key : INTEGER
+		END;
+
+	Table = ARRAY 10 OF REAL;
+	name = ARRAY 32 OF CHAR;
+	VAR p, father: INTEGER;
+	ch: CHAR;
+	float_point: REAL;
+	bool_point: BOOLEAN;
+
+	
+END Trees.
+
+MODULE Trees2;
+TYPE
+	VAR p, father: INTEGER;
+END Trees2.
+	
+
+	
+

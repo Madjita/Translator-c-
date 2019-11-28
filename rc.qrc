@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ic_dj.ico</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,1 @@
+g++ -lm -pthread -std=c++11 str_switch.h globals.h threadpull.cpp filework.cpp globalsfun.h httpserver.cpp scanner.cpp space.cpp main.cpp -o Windows/Translator_CPP.out 

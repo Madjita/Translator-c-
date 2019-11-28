@@ -1,0 +1,82 @@
+#include <iostream>
+#include <sys\type>
+
+int Scanner2.work = 5;
+//"C:\\Users\\4230\\Desktop\\Ph.D\\My_alien\\2.txt"
+//"C:\\Users\\4230\\Desktop\\Ph.D\\web\\Translator\\main.cpp"
+	
+if((x != 1) && (y <= 2))
+{
+}
+cout << "Hellow world" << x << "STR " << endl;
+ptint("hellow world %d",&x);
+
+class Scanner2 : public QObject
+{
+
+}
+
+char *s = new char[10];
+char *z = new char(10);
+char xw[10];
+extern wostream endl;
+extern ostream cout;
+cout << 5 << endl;
+
+int x()
+{
+	do
+	{
+		int x;
+		int y;
+		char* z;
+		x +=1;
+		x -=y;
+		x *=1;
+		x %=1.1;
+		x /=1;
+		x = 3%(y*2.48/1-(2+1)-3);
+		int* q;
+		z = *q;
+		//z = &x;
+	}while(5 < 0);
+	return 1;
+}
+
+void summ(int x, int y)
+{
+	x++;
+	y--;
+	if(5 > 0)
+	{
+		char xy;
+		
+		for(int i = 0;i < 5;i++)
+		{
+			char z;
+		}
+		
+	}
+	else
+	{
+		char x;
+	}
+		
+	
+
+	char z;
+	z = 'z';
+	x = 5.5;
+	float hy = 5;
+	x = y;
+	
+	
+	summ(5.1,5,5.2);
+}
+
+int main(int argc, char *argv[])
+{
+	char str[100];
+
+	return 0;
+}
