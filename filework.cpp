@@ -351,7 +351,8 @@ void FileWork::readString(string fileData) //,future<bool> stopFlag
 
         if(flag_comment)
         {
-            if(char(ch) == '\n')
+
+            if(char(ch) == '\n' || char(ch) == '/' && fileData[i-1] == '*')
             {
                 flag_comment = false; //флаг отвечающий за коментарии
             }
@@ -399,7 +400,7 @@ void FileWork::readString(string fileData) //,future<bool> stopFlag
                     }
                     else
                     {
-                        s +=char(ch);
+                      s +=char(ch);
                     }
                 }
                 else
@@ -483,6 +484,16 @@ void FileWork::readString(string fileData) //,future<bool> stopFlag
             case '&':
             case '*':
             {
+
+                if(s.size() > 0)
+                {
+                    if(s[s.size()-1] == '/')
+                    {
+                        flag_comment=true;
+                        s.pop_back();
+                        break;
+                    }
+                }
                 if(n > 0)
                 {
                     switch (list_result_[n].back())
@@ -560,6 +571,7 @@ void FileWork::readString(string fileData) //,future<bool> stopFlag
     }
 
 
+    list_result_.pop_back();
     //
     isThreadRunning_ = false;
 
