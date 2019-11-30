@@ -10,3 +10,6 @@ Open you browser and get web on the 127.0.0.1:8000
 
 Open the file in the test folder.
 Click button.
+
+P.s:
+  Download g++ for Windows : http://www.equation.com/servlet/equation.cmd?fa=fortran
