@@ -233,6 +233,20 @@ bool Scanner::next(string row_str, unsigned int row)
                 continue;
             }
 
+            if(word == "include")
+            {
+                addMapLex(row,lcInclude,toEnumString(lcInclude),word);
+                s2.erase(0,i);
+
+                s2.erase(0,1);
+                s2.erase(s2.size()-1,s2.size());
+                addWordIncludes(lcInclude,s2);
+
+                addMapLex(row,lcInclude,s2,s2);
+                word ="";
+                return true;
+            }
+
 
             bool ok = false;
             //это ключевое слово ?
@@ -401,7 +415,7 @@ bool Scanner::next(string row_str, unsigned int row)
                             {
                                 ok = false;
                                 //Это обявленная переменная?
-                                ok = findWordWords(word);
+                                ok = findWordWords(word,itemSpaces);
                                 if(ok)
                                 {
                                     //да
@@ -692,6 +706,7 @@ bool Scanner::next(string row_str, unsigned int row)
                     bool findWord = false; // флаг объявленна ли переменная
                     for(auto item : itemSpaces->variables)
                     {
+
                         //написать проверку на меременную
                         auto nameWord = item.first.begin()->second;
                         if(word == nameWord)
@@ -699,18 +714,50 @@ bool Scanner::next(string row_str, unsigned int row)
                             //Значит дананя переменная уже есть
                             findWord = true;
                             //Значит дананя переменная уже есть
-                            //Так как мы были в '=' значит ошибка присваения
-                            cout<<endl;
-                            cout <<"Row["<<row<<"] ) ERROR : Redeclaring a declared variable = '" <<word<<"'"<<endl;
-                            cout<<endl;
-                            return false;
+                            break;
+
                         }
                     }
                     if(findWord)
                     {
+
                         //Переменная существует в списке объявлений
+                        addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+
+                        auto firstLex= getFirslex(row);
+
+                        if(firstLex == "*")
+                        {
+                            //Разименование объекта
+                            //Переменная существует в списке объявлений
+                            addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+                            word ="";
+                            continue;
+                        }
 
                         //Проверить не логические ли происходят с переменной ?
+                        //Чем является следующий символ?
+                        switch (s2[i+1])
+                        {
+                        case '=':
+                            //Условие равнества
+                            addMapLex(row,lcEqual,toEnumString(lcEqual),"==");
+                            word ="";
+                            continue;
+                        default:
+                            {
+                                //Так как мы были в '=' значит ошибка присваения
+                                cout<<endl;
+                                cout <<"Row["<<row<<"] ) ERROR : Redeclaring a declared variable = '" <<word<<"'"<<endl;
+                                cout<<endl;
+                                return false;
+                                break;
+                            }
+                        }
+
+                        //Не является булевым вырожением
+
+
                         //Ошибка обявлениия переменной второй раз
                         //Error
                     }
@@ -802,26 +849,6 @@ bool Scanner::next(string row_str, unsigned int row)
                     default:
                         addMapLex(row,lcAssign,toEnumString(lcAssign),"=");
                         break;
-                        //                    case '+':
-
-                        //                        addMapLex(row,lcPlus,toEnumString(lcPlus),"+=");
-                        //                        break;
-                        //                    case '-':
-
-                        //                        addMapLex(row,lcMinus,toEnumString(lcMinus),"-=");
-                        //                        break;
-                        //                    case '*':
-
-                        //                        addMapLex(row,lcStar,toEnumString(lcStar),"*=");
-                        //                        break;
-                        //                    case '%':
-
-                        //                        addMapLex(row,lcPercent,toEnumString(lcPercent),"%=");
-                        //                        break;
-                        //                    case '/':
-
-                        //                        addMapLex(row,lcSlash,toEnumString(lcSlash),"/=");
-                        //                        break;
                     }
 
                 }
@@ -1204,7 +1231,7 @@ bool Scanner::next(string row_str, unsigned int row)
                         //Если 1,2 позиция есть объявление функции то
                         auto item2 =map_word_lex.at(row)[1].begin()->first;
                         auto item3 =map_word_lex.at(row)[2].begin()->first;
-                        if(item2 == lcFunLabel && item3 == lcLCircle)
+                        if((item2 == lcFunLabel && item3 == lcLCircle) || (item2 == lcLabelClass && item3 == lcColon))
                         {
 
                             auto nameFun = map_word_lex.at(row)[1].begin()->second.rbegin()->second;
@@ -1412,7 +1439,7 @@ bool Scanner::next(string row_str, unsigned int row)
                     //Если 1,2 позиция есть объявление функции то
                     auto item2 =map_word_lex.at(row)[1].begin()->first;
                     auto item3 =map_word_lex.at(row)[2].begin()->first;
-                    if(item2 == lcFunLabel && item3 == lcLCircle)
+                    if((item2 == lcFunLabel && item3 == lcLCircle) || (item2 == lcLabelClass && item3 == lcColon))
                     {
 
                         if(type_template.size() > 0)
@@ -2109,6 +2136,23 @@ bool Scanner::next(string row_str, unsigned int row)
         }
         case '"':
         {
+
+            if(word == "include")
+            {
+                addMapLex(row,lcInclude,toEnumString(lcInclude),word);
+
+
+                s2.erase(0,i);
+
+                s2.erase(0,1);
+                s2.erase(s2.size()-1,s2.size());
+                addWordIncludes(lcInclude,s2);
+
+                addMapLex(row,lcInclude,s2,s2);
+                word ="";
+                return true;
+            }
+
             if(flag_lcQuotes)
             {
                 flag_lcQuotes = false;
