@@ -84,6 +84,7 @@ $(function(){
 	
 	
 	$('input[type="file"]').change(function(){
+		document.getElementById("answer").innerHTML = "";
 		addFiles(this.files);
 		
 		

@@ -330,6 +330,7 @@ void HttpServer::worker(future<bool> stopFlag)
 
     vector<char> resultBuf;
     vector<string> list_http;
+    string http_fileData = "";
     vector<string> list_one_line;
     vector<string> get_parametrs;
 
@@ -509,9 +510,22 @@ void HttpServer::worker(future<bool> stopFlag)
 
                 if(howPost == "POST")
                 {
+                    list_http.clear();
+                    list_one_line.clear();
+                    http_fileData="";
+
                     //SPLit http
                     list_http = split(buf.data(),"-----------------------------");
                     list_one_line = split(list_http.at(0)," ");
+
+                    cout << "list_http.size() = " << list_http.size()<<endl;
+                    if(list_http.size() > 2)
+                    {
+                          for(int i=1;i < list_http.size()-1;i++)
+                          {
+                              http_fileData +=list_http[i];
+                          }
+                    }
 
                     //Проверка есть ли GEt данные или нет
                     auto get_parametrs = split(list_one_line.at(1),"?",1);
@@ -574,9 +588,9 @@ void HttpServer::worker(future<bool> stopFlag)
                 HttpStr +="Server: zeadboar\r\n";
                 HttpStr +="X-Pingback://webgyry.info/xmlrpc.php\r\n\r\n";
 
-                auto listFile = split(list_http[1],"\r\n\r\n");
+                auto listFile = split(http_fileData,"\r\n\r\n");
 
-                auto file = list_http[1];
+                auto file = http_fileData;
                 file.erase(0,listFile[0].size()+4);
 
 
@@ -647,6 +661,11 @@ void HttpServer::worker(future<bool> stopFlag)
 
         resultBuf.clear();
         query.clear();
+
+        for(int i=0; i < buf.size();i++)
+        {
+            buf[i] = '\0';
+        }
 
     }
 
