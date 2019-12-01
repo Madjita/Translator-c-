@@ -1,64 +1,91 @@
-lcLattice lcLabel lcSmaller 
-lcType lcLarger lcLattice lcInclude sys\type 
-keyINT lcLabel lcPoint lcLabel lcAssign kwINT lcSemicolon 
-keyIF lcLCircle lcLCircle lcLabel lcNotEqual kwINT lcRCircle lcDoubleImpersant lcLCircle lcType lcSmallerEQ kwINT lcRCircle lcRCircle 
-lcLFigure
-lcRFigure 
-lcType lcSmaller lcSmaller lcQuotes kwSTRING lcQuotes lcSmaller lcSmaller lcType lcSmaller lcSmaller lcQuotes kwSTRING lcQuotes lcSmaller lcSmaller lcLabel lcSemicolon 
-lcFunLabel lcLCircle lcQuotes kwSTRING lcQuotes lcComma lcImpersant lcLabel lcRCircle lcSemicolon 
-keyCLASS lcLabelClass lcColon keyPUBLIC lcLabelClass 
-lcLFigure
-lcRFigure 
-lcTypeStar lcLabel lcAssign keyNEW keyCHAR lcLSquare kwINT lcRSquare lcSemicolon 
-lcTypeStar lcLabel lcAssign keyNEW keyCHAR lcLCircle kwINT lcRCircle lcSemicolon 
-keyCHAR lcLSquare kwINT lcRSquare lcSemicolon 
-keyEXTERN lcLabel lcSemicolon 
-keyEXTERN lcLabel lcLabel lcSemicolon 
-lcType lcSmaller lcSmaller kwINT lcSmaller lcSmaller lcSemicolon 
-keyINT lcFunLabel lcLCircle lcRCircle 
-lcLFigure
-	keyDO 
-	lcLFigure
-		keyINT lcLabel lcSemicolon 
-		keyINT lcLabel lcSemicolon 
-		lcTypeStar lcLabel lcSemicolon 
-		lcLabel lcPlus lcAssign kwINT lcSemicolon 
-		lcLabel lcMinus lcAssign lcSemicolon 
-		lcLabel lcStar lcAssign kwINT lcSemicolon 
-		lcLabel lcPercent lcAssign kwFLOAT lcSemicolon 
-		lcLabel lcAssign kwINT lcSemicolon 
-		lcLabel lcAssign kwINT lcPercent lcLCircle lcLabel lcStar kwFLOAT lcPercent kwINT lcMinus lcLCircle kwINT lcPlus kwINT lcRCircle lcMinus kwINT lcRCircle lcSemicolon 
-		lcTypeStar lcLabel lcSemicolon 
-		lcLabel lcAssign lcStar lcLabel lcSemicolon 
-	lcRFigure 
-	keyWHILE lcLCircle kwINT lcSmaller kwINT lcRCircle lcSemicolon 
-	keyRETURN kwINT lcSemicolon 
-lcRFigure 
-keyVOID lcFunLabel lcLCircle keyINT lcLabel lcComma keyINT lcLabel lcRCircle 
-lcLFigure
-	lcLabel lcPlus lcPlus lcSemicolon 
-	lcLabel lcMinus lcMinus lcSemicolon 
-	keyIF lcLCircle kwINT lcLarger kwINT lcRCircle 
-	lcLFigure
-		keyCHAR lcLabel lcSemicolon 
-		keyFOR lcLCircle keyINT lcLabel lcAssign kwINT lcSemicolon lcLabel lcSmaller kwINT lcSemicolon lcLabel lcPlus lcPlus lcRCircle 
-		lcLFigure
-			keyCHAR lcLabel lcSemicolon 
-		lcRFigure 
-	lcRFigure 
-	keyELSE 
-	lcLFigure
-		keyCHAR lcLabel lcSemicolon 
-	lcRFigure 
-	keyCHAR lcLabel lcSemicolon 
-	lcLabel lcAssign lcApostrophe lcCharConst lcApostrophe lcSemicolon 
-	lcLabel lcAssign kwFLOAT lcSemicolon 
-	keyFLOAT lcLabel lcAssign kwINT lcSemicolon 
-	lcLabel lcAssign lcSemicolon 
-	lcFunLabel lcLCircle kwFLOAT lcComma kwINT lcComma kwFLOAT lcRCircle lcSemicolon 
-lcRFigure 
-keyINT lcFunLabel lcLCircle keyINT lcLabel lcComma lcTypeStar lcLabel lcLSquare lcRSquare lcRCircle 
-lcLFigure
-	keyCHAR lcLSquare kwINT lcRSquare lcSemicolon 
-	keyRETURN kwINT lcSemicolon 
-lcRFigure 
+HTTP/1.1 200 OK
+Date: SUN,10 Feb 2019 03:51:41 GMT
+Content-type: text
+Connection: close
+Server: zeadboar
+X-Pingback://webgyry.info/xmlrpc.php
+
+lcLattice lcLabel lcLabelClass 
+lcLattice lcLabel lcLabelClass 
+ 
+ 
+lcLattice lcInclude <iostream 
+lcLattice lcInclude <vector 
+lcLattice lcInclude <fstream 
+ 
+lcLattice lcInclude <mutex 
+lcLattice lcInclude <semaphore.h 
+lcLattice lcInclude <condition_variable 
+ 
+ 
+lcLattice lcInclude <future 
+ 
+ 
+lcLattice lcInclude "threadpull.h 
+lcLattice lcInclude "globalsfun.h 
+ 
+     
+    keyEXTERN lcType lcSmaller lcType lcLarger lcFunLabel lcLCircle lcLabel lcLabel lcComma lcType lcLabel lcComma keyINT lcLabel lcAssign kwINT lcRCircle lcSemicolon 
+ 
+    keyUSING keyNAMESPACE lcSemicolon 
+     
+    keyCLASS lcLabelClass 
+    lcLFigure 
+keyPUBLIC lcColon 
+lcFunLabel lcLCircle lcRCircle lcSemicolon 
+   lcFunLabel lcLCircle lcRCircle lcSemicolon 
+ 
+keyVOID lcFunLabel lcLCircle lcType lcSmaller lcType lcLarger lcLabel lcSemicolon 
+    keyVOID lcFunLabel lcLCircle lcType lcLabel lcComma lcType lcSmaller lcType lcLarger lcLabel lcSemicolon 
+    keyVOID lcFunLabel lcLCircle lcType lcLabel lcRCircle lcSemicolon lcPercent lcPercent lcType lcSmaller lcType lcLarger lcLabelClass 
+keyVOID lcFunLabel lcLCircle lcType lcLabel lcComma keyBOOL lcLabel lcRCircle lcSemicolon 
+     
+     
+lcPercent lcPercent lcType lcSmaller lcType lcLarger lcFunLabel lcLCircle lcLabel lcLabel lcComma lcType lcLabel lcComma keyINT lcLabel lcAssign kwINT lcRCircle lcSemicolon 
+     
+ 
+    keyVOID lcFunLabel lcLCircle lcRCircle lcSemicolon 
+    keyVOID lcFunLabel lcLCircle lcRCircle lcSemicolon 
+ 
+lcType lcSmaller lcType lcLarger lcFunLabel lcLCircle lcRCircle lcSemicolon 
+lcType lcSmaller lcType lcSmaller lcType lcLarger lcLarger lcFunLabel lcLCircle lcRCircle lcSemicolon 
+ 
+keyVOID lcFunLabel lcLCircle lcRCircle lcSemicolon 
+     
+keyBOOL lcFunLabel lcLCircle lcRCircle lcSemicolon 
+    keyBOOL lcFunLabel lcLCircle lcRCircle lcSemicolon 
+     
+     
+ 
+     
+     
+lcPercent lcPercent lcPercent lcPercent lcPercent lcPercent lcPercent lcPercent lcPercent lcPercent lcPercent lcPercent 
+     
+lcLabel lcSemicolon 
+    lcLabel lcSemicolon 
+lcLabel lcSemicolon 
+ 
+    lcLabel lcSemicolon 
+keyBOOL lcSemicolon 
+ 
+    keyBOOL lcSemicolon 
+     
+    keyBOOL lcSemicolon 
+     
+     
+lcColon lcColon lcType lcSmaller lcType lcLarger lcSemicolon 
+     
+keyPRIVATE lcColon 
+    lcLabel lcSemicolon 
+lcColon lcColon lcLabelClass lcColon lcColon lcLabel lcSemicolon 
+lcType lcSmaller lcType lcLarger lcSemicolon 
+lcType lcSmaller lcType lcSmaller lcType lcLarger lcLarger lcSemicolon 
+lcType lcSemicolon 
+ 
+keyINT lcSemicolon 
+ 
+lcLabel lcSemicolon 
+lcRFigure lcSemicolon 
+ 
+lcLattice lcLabel lcPercent lcPercent lcLabelClass 
+ 

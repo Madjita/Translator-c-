@@ -33,13 +33,16 @@ bool HttpServer::readFile(string fileStream, string &resultBuf)
     //file.process_start(fileStream,false);
 
     cout << "readString"<<endl;
-    file.readString(fileStream);
-
+    //file.readString(fileStream);
 
     vector<string> v;
 
     cout << "  v = file.getResult();"<<endl;
-    v = file.getResult();
+    // v = file.getResult();
+
+    v = split(fileStream,"\r\n");
+    if(*v.rbegin() == "")
+        v.pop_back();
 
     cout << "  v = " << v.size()<<endl;
 
@@ -47,6 +50,7 @@ bool HttpServer::readFile(string fileStream, string &resultBuf)
     Scanner scan;
     scan.workLexer(v);
 
+    cout << "Lex the end :"<<endl;
 
 
     int count_t = 0;
@@ -54,7 +58,7 @@ bool HttpServer::readFile(string fileStream, string &resultBuf)
     bool flag_dontNextLine = false;
     bool flag_enum = false;
 
-    stringstream file_sss;
+    //stringstream file_sss;
 
 
     if(scan.list_word_lex_string.size() == 0)
@@ -62,9 +66,37 @@ bool HttpServer::readFile(string fileStream, string &resultBuf)
         cout << "EROOR"<<endl;
     }
 
-    for(unsigned int i=0;i < scan.list_word_lex_string.size();i++)
-    {
+    // for(unsigned int i=0;i < scan.list_word_lex_string.size();i++)
 
+    resultBuf += scan.getLexString();
+
+
+    /*for(auto it=mapLex.begin(); it !=mapLex.end();it++)
+    {
+        for(int j=0; j < scan.countTab[it->first];j++)
+        {
+            file_sss << '\t';
+        }
+
+        auto vector_lex = it->second;
+
+        //идем по вектору лексем
+        for(auto j=0; j < vector_lex.size();j++)
+        {
+            //идем по лексемам
+            for(auto& item_lex : vector_lex[j])
+            {
+                //идем по значениям
+                for(auto& item_data : item_lex.second)
+                {
+                    file_sss << item_data.first << " ";
+                }
+            }
+        }
+
+        if(it->first != mapLex.size()-1)
+            file_sss << '\n';
+        /*
         auto ch = scan.list_word_lex_string[i];
         string ch_next = "";
         string ch_above = "";
@@ -163,15 +195,14 @@ bool HttpServer::readFile(string fileStream, string &resultBuf)
             flag_ferstWordInStr= true;
             flag_dontNextLine = false;
         }
-    }
+    }*/
 
-    resultBuf += file_sss.str();
 
     ofstream file_ExampleLex;
     file_ExampleLex.open(string("log_lexem.txt").c_str(), ios::binary);
     file_ExampleLex.close();
     file_ExampleLex.open(string("log_lexem.txt").c_str(), ios::binary | ios::app);
-    file_ExampleLex << file_sss.str();
+    file_ExampleLex << resultBuf;
 
 
 
@@ -338,7 +369,7 @@ void HttpServer::worker(future<bool> stopFlag)
     //char *buf = new char;
 
     vector<char> buf(BUFSIZ);
-    vector<char> query ;
+    vector<char> query;
 
     char* get_get = (char*)calloc(100,sizeof(char));
     char* get = (char*)calloc(1024,sizeof(char));
@@ -490,8 +521,8 @@ void HttpServer::worker(future<bool> stopFlag)
             HttpStr +="X-Pingback://webgyry.info/xmlrpc.php\r\n\r\n";
 
             query.clear();
-
-            copy(HttpStr.begin(), HttpStr.end(), std::back_inserter(query));
+            query.resize(HttpStr.size());
+            copy(HttpStr.begin(), HttpStr.end(), query.begin());
 
 
             if(buf.size() > 5)
@@ -521,10 +552,10 @@ void HttpServer::worker(future<bool> stopFlag)
                     cout << "list_http.size() = " << list_http.size()<<endl;
                     if(list_http.size() > 2)
                     {
-                          for(int i=1;i < list_http.size()-1;i++)
-                          {
-                              http_fileData +=list_http[i];
-                          }
+                        for(int i=1;i < list_http.size()-1;i++)
+                        {
+                            http_fileData +=list_http[i];
+                        }
                     }
 
                     //Проверка есть ли GEt данные или нет
@@ -567,8 +598,8 @@ void HttpServer::worker(future<bool> stopFlag)
                 HttpStr +="Server: zeadboar\r\n";
                 HttpStr +="X-Pingback://webgyry.info/xmlrpc.php\r\n\r\n";
                 query.clear();
-
-                copy(HttpStr.begin(), HttpStr.end(), std::back_inserter(query));
+                query.resize(HttpStr.size());
+                copy(HttpStr.begin(), HttpStr.end(), query.begin());
                 ::send(sock_server_hhtp,query.data(),static_cast<int>(query.size()),0);
                 break;
             }
@@ -582,11 +613,13 @@ void HttpServer::worker(future<bool> stopFlag)
 
                 HttpStr = "HTTP/1.1 200 OK\r\n";
                 HttpStr +="Date: SUN,10 Feb 2019 03:51:41 GMT\r\n";
-                HttpStr +="Content-type: text\r\n"; //application/x-www-form-urlencoded
+                HttpStr +="Content-type: text;charset=utf-8\r\n"; //application/x-www-form-urlencoded
+                //HttpStr +="Connection: close\r\n";
                 HttpStr +="Connection: keep-alive\r\n";
-                HttpStr +="Keep-Alive: timeout=1\r\n";
+                HttpStr +="Keep-Alive: timeout=100\r\n";
                 HttpStr +="Server: zeadboar\r\n";
                 HttpStr +="X-Pingback://webgyry.info/xmlrpc.php\r\n\r\n";
+
 
                 auto listFile = split(http_fileData,"\r\n\r\n");
 
@@ -596,14 +629,13 @@ void HttpServer::worker(future<bool> stopFlag)
 
                 cout << "readFile"<<endl;
 
-                query.clear();
 
                 readFile(file,HttpStr);
 
 
-
-                copy(HttpStr.begin(), HttpStr.end(), std::back_inserter(query));
-
+                query.clear();
+                query.resize(HttpStr.size());
+                copy(HttpStr.begin(), HttpStr.end(), query.begin());
 
 
                 ::send(sock_server_hhtp,query.data(),static_cast<int>(query.size()),0);
@@ -643,7 +675,8 @@ void HttpServer::worker(future<bool> stopFlag)
                     HttpStr +="X-Pingback://webgyry.info/xmlrpc.php\r\n\r\n";
 
                     query.clear();
-                    copy(HttpStr.begin(), HttpStr.end(), std::back_inserter(query));
+                    query.resize(HttpStr.size());
+                    copy(HttpStr.begin(), HttpStr.end(), query.begin());
                 }
 
 #else

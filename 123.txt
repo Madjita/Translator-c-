@@ -22,6 +22,7 @@ int sum(int x,int y)
 
 int main(int argc, char *argv[])
 {
+	ofstream file_ExampleLex;
 	int x = 5 ;
 	float y = 5.5;
 	

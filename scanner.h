@@ -16,6 +16,8 @@
 #include <condition_variable>
 #include <map>
 #include <list>
+#include <sstream>
+#include <iostream>
 
 using namespace std;
 
@@ -24,10 +26,14 @@ class Scanner
 {
 public:
     Scanner();
+    ~Scanner();
 
     int workLexer(const vector<string> &list);
     bool next(string row_str, unsigned int row);
+    map<int,vector<map<LexClass,map<string,string>>>> getMapWorldLex();
+    string getLexString();
     vector<string> list_word_lex_string;
+    vector<string> countTab; // Количество табуляции в каждой строчке
 
 private:
     void zapolnenieOperationsPriorityForward(vector<string> operands, int priority, int forward);
@@ -95,6 +101,9 @@ private:
     list<Space*> listItemSpaces; // массив  Указателей на объект который сейчас собирается
 
     Space* itemSpaces; //Указатель на объект который сейчас собирается
+
+    bool flagComment;
+
  };
 
 #endif // SCANNER_H

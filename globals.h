@@ -8,7 +8,7 @@ enum LexClass
 {
 
     //Реализованные
-
+    lcNull,
     lcLCircle,			// круглые скобки '('
     lcRCircle,			// круглые скобки ')'
     lcLSquare,			// квадратные скобки '['

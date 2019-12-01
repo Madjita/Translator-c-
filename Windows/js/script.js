@@ -83,6 +83,7 @@ $(function(){
 		
 	$('input[type="file"]').change(function(){
 		document.getElementById("answerList").innerHTML = "";
+		document.getElementById("fileReadList").innerHTML = "";
 		addFiles(this.files);
     });
 	
