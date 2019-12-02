@@ -81,30 +81,10 @@ $('#formFile').submit(function(e) {
 
 $(function(){
 		
-	
-	
 	$('input[type="file"]').change(function(){
+		document.getElementById("answerList").innerHTML = "";
+		document.getElementById("fileReadList").innerHTML = "";
 		addFiles(this.files);
-		
-		
-       /* var value = $("input[type='file']");
-        document.getElementById("fileRead").innerHTML += this.value;
-		
-		
-	 var reader = new FileReader();
-
-	  reader.onload = function (e) {
-		// Используем URL изображения для заполнения фона
-		//dropBox.style.backgroundImage = "url('" + e.target.result + "')";
-		
-		console.log("loading");
-	  };
-	  
-	  // Начинаем считывать изображение
-	  reader.readAsDataURL(value);
-		
-		*/
-		
     });
 	
 	function addFiles(files) {
@@ -116,8 +96,16 @@ $(function(){
 			fr.readAsText(v);
 			
 			fr.onload = function() {
-			console.log(fr.result);
-			document.getElementById("fileRead").innerHTML = fr.result;
+			
+			let res_arr = fr.result.split('\n');
+			let list = document.getElementById('fileReadList');
+			res_arr.forEach( row => {
+				let li = document.createElement('li');
+				li.innerText = row;
+				list.appendChild( li );
+			});
+			//document.getElementById("fileRead").innerText = fr.result;
+			
 		  };
 		  
 		  });
@@ -129,6 +117,7 @@ $(function(){
   $('#formFile').on('submit', function(e){
     e.preventDefault();
 
+	document.getElementById("answerList").innerHTML = "";
 	console.log("test success");
 	
    // var form = $('#formFile').serialize(); 
@@ -142,7 +131,15 @@ $(function(){
       success: function(json){
         if(json){
           // тут что-то делаем с полученным результатом
-			document.getElementById("answer").innerHTML = json;
+		  console.log( json.split('\n'));
+			let res_arr = json.split('\n');
+			let answerList = document.getElementById('answerList');
+			res_arr.forEach( row => {
+				let li = document.createElement('li');
+				li.innerText = row;
+				answerList.appendChild( li );
+			});
+			//document.getElementById("answer").innerHTML = json;
         }
       }
     });

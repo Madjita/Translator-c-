@@ -121,6 +121,8 @@ Scanner::Scanner()
     addTypes(lcType,"string");
     addTypes(lcType,"list");
     addTypes(lcType,"map");
+    addTypes(lcType,"ofstream");
+    addTypes(lcType,"ifstream");
 
 
     spaces.name = "global";
@@ -130,6 +132,15 @@ Scanner::Scanner()
 
     //Массив хранит в себе объект который будет собираться
     listItemSpaces.push_back(itemSpaces); //может не понадобиться
+
+    flagComment = false;
+}
+
+Scanner::~Scanner()
+{
+    list_word_lex_string.clear();
+    countTab.clear();
+    listItemSpaces.clear();
 }
 
 //Разбор строк на лексемы
@@ -188,8 +199,6 @@ bool Scanner::next(string row_str, unsigned int row)
         map_word_lex.insert(make_pair(row,vector_lex));
     }
 
-
-
     string word = "";
     char ch;
     string s2 = row_str;
@@ -199,6 +208,66 @@ bool Scanner::next(string row_str, unsigned int row)
     bool flag_lcQuotes = false;
     //bool flag_addClassFun = false;
 
+    string countTab_ = "";
+    int start_flagComment = 0;
+    for (unsigned int i=0;i < row_str.size();i++)
+    {
+        if( '/' == row_str[i] && '*' == row_str[i+1] && !flagComment)
+        {
+           start_flagComment = i;
+           flagComment = true;
+        }
+
+        if(flagComment && '*' == row_str[i] && '/' == row_str[i+1])
+        {
+            if(start_flagComment > 0)
+            {
+                row_str.erase(start_flagComment,i+2);
+            }
+            else
+            {
+                row_str.erase(0,i+2);
+            }
+            flagComment = false;
+        }
+
+        if( '/' == row_str[i] && '/' == row_str[i+1] && !flagComment)
+        {
+            row_str.erase(i,row_str.size());
+            break;
+        }
+    }
+
+    if(flagComment)
+    {
+        if(start_flagComment > 0)
+        {
+          row_str.erase(start_flagComment,row_str.size());
+        }
+        else
+        {
+            row_str.clear();
+        }
+    }
+
+    for (unsigned int i=0;i < row_str.size();i++)
+    {
+        if( ' ' == row_str[i] || '\t' == row_str[i])
+        {
+            countTab_+=row_str[i];
+        }
+        else
+        {
+            row_str.erase(0,i);
+            break;
+        }
+    }
+
+    if(row_str.size() == 0 )
+    {
+         addMapLex(row,lcNull,"","");
+    }
+    countTab.push_back(countTab_);
 
     for (unsigned int i=0;i < row_str.size();i++)
     {
@@ -231,6 +300,20 @@ bool Scanner::next(string row_str, unsigned int row)
                 type_template_lex = "";
                 word ="";
                 continue;
+            }
+
+            if(word == "include")
+            {
+                addMapLex(row,lcInclude,toEnumString(lcInclude),word);
+                s2.erase(0,i);
+
+                //s2.erase(0,1);
+                //s2.erase(s2.size()-1,s2.size());
+                addWordIncludes(lcInclude,s2);
+
+                addMapLex(row,lcInclude,s2,s2);
+                word ="";
+                return true;
             }
 
 
@@ -335,6 +418,7 @@ bool Scanner::next(string row_str, unsigned int row)
                         }
 
 
+
                         ok = findTypeData(lastLex);
                         if(ok)
                         {
@@ -352,6 +436,22 @@ bool Scanner::next(string row_str, unsigned int row)
                                 {
                                     //Значит дананя переменная уже есть
                                     findWord = true;
+                                }
+                            }
+                            if(findWord)
+                            {
+                                //Переменная существует в списке объявлений
+
+                                if(firstLex == "*")
+                                {
+                                    //Разименование объекта
+                                    //Переменная существует в списке объявлений
+                                    addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+                                    word ="";
+                                    continue;
+                                }
+                                else
+                                {
                                     //Значит дананя переменная уже есть
                                     //Так как мы были в '=' значит ошибка присваения
                                     cout<<endl;
@@ -359,10 +459,7 @@ bool Scanner::next(string row_str, unsigned int row)
                                     cout<<endl;
                                     return false;
                                 }
-                            }
-                            if(findWord)
-                            {
-                                //Переменная существует в списке объявлений
+
 
                                 //Проверить не логические ли происходят с переменной ?
                                 //Ошибка обявлениия переменной второй раз
@@ -401,7 +498,7 @@ bool Scanner::next(string row_str, unsigned int row)
                             {
                                 ok = false;
                                 //Это обявленная переменная?
-                                ok = findWordWords(word);
+                                ok = findWordWords(word,itemSpaces);
                                 if(ok)
                                 {
                                     //да
@@ -470,6 +567,18 @@ bool Scanner::next(string row_str, unsigned int row)
             {
                 continue;
             }
+
+            if(word.size() > 0)
+            {
+                //Так как мы нашли равенство то добать переменную в область видимости
+                //Значит данное значение скороее всего Имя переменоой
+                addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+                auto item = map_word_lex.at(row);
+                auto itemType = item.begin()->begin()->second;
+                auto itemName = item[item.size()-1].begin()->second;
+                itemSpaces->push_back_variables(itemName,itemType);
+            }
+
 
             //Нужно для того чтобы вернуться на последний элимент из списка
             itemSpaces = listItemSpaces.back();
@@ -692,6 +801,7 @@ bool Scanner::next(string row_str, unsigned int row)
                     bool findWord = false; // флаг объявленна ли переменная
                     for(auto item : itemSpaces->variables)
                     {
+
                         //написать проверку на меременную
                         auto nameWord = item.first.begin()->second;
                         if(word == nameWord)
@@ -699,18 +809,50 @@ bool Scanner::next(string row_str, unsigned int row)
                             //Значит дананя переменная уже есть
                             findWord = true;
                             //Значит дананя переменная уже есть
-                            //Так как мы были в '=' значит ошибка присваения
-                            cout<<endl;
-                            cout <<"Row["<<row<<"] ) ERROR : Redeclaring a declared variable = '" <<word<<"'"<<endl;
-                            cout<<endl;
-                            return false;
+                            break;
+
                         }
                     }
                     if(findWord)
                     {
+
                         //Переменная существует в списке объявлений
+                        addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+
+                        auto firstLex= getFirslex(row);
+
+                        if(firstLex == "*")
+                        {
+                            //Разименование объекта
+                            //Переменная существует в списке объявлений
+                            addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+                            word ="";
+                            continue;
+                        }
 
                         //Проверить не логические ли происходят с переменной ?
+                        //Чем является следующий символ?
+                        switch (s2[i+1])
+                        {
+                        case '=':
+                            //Условие равнества
+                            addMapLex(row,lcEqual,toEnumString(lcEqual),"==");
+                            word ="";
+                            continue;
+                        default:
+                            {
+                                //Так как мы были в '=' значит ошибка присваения
+                                cout<<endl;
+                                cout <<"Row["<<row<<"] ) ERROR : Redeclaring a declared variable = '" <<word<<"'"<<endl;
+                                cout<<endl;
+                                return false;
+                                break;
+                            }
+                        }
+
+                        //Не является булевым вырожением
+
+
                         //Ошибка обявлениия переменной второй раз
                         //Error
                     }
@@ -802,26 +944,6 @@ bool Scanner::next(string row_str, unsigned int row)
                     default:
                         addMapLex(row,lcAssign,toEnumString(lcAssign),"=");
                         break;
-                        //                    case '+':
-
-                        //                        addMapLex(row,lcPlus,toEnumString(lcPlus),"+=");
-                        //                        break;
-                        //                    case '-':
-
-                        //                        addMapLex(row,lcMinus,toEnumString(lcMinus),"-=");
-                        //                        break;
-                        //                    case '*':
-
-                        //                        addMapLex(row,lcStar,toEnumString(lcStar),"*=");
-                        //                        break;
-                        //                    case '%':
-
-                        //                        addMapLex(row,lcPercent,toEnumString(lcPercent),"%=");
-                        //                        break;
-                        //                    case '/':
-
-                        //                        addMapLex(row,lcSlash,toEnumString(lcSlash),"/=");
-                        //                        break;
                     }
 
                 }
@@ -1204,7 +1326,7 @@ bool Scanner::next(string row_str, unsigned int row)
                         //Если 1,2 позиция есть объявление функции то
                         auto item2 =map_word_lex.at(row)[1].begin()->first;
                         auto item3 =map_word_lex.at(row)[2].begin()->first;
-                        if(item2 == lcFunLabel && item3 == lcLCircle)
+                        if((item2 == lcFunLabel && item3 == lcLCircle) || (item2 == lcLabelClass && item3 == lcColon))
                         {
 
                             auto nameFun = map_word_lex.at(row)[1].begin()->second.rbegin()->second;
@@ -1412,7 +1534,7 @@ bool Scanner::next(string row_str, unsigned int row)
                     //Если 1,2 позиция есть объявление функции то
                     auto item2 =map_word_lex.at(row)[1].begin()->first;
                     auto item3 =map_word_lex.at(row)[2].begin()->first;
-                    if(item2 == lcFunLabel && item3 == lcLCircle)
+                    if((item2 == lcFunLabel && item3 == lcLCircle) || (item2 == lcLabelClass && item3 == lcColon))
                     {
 
                         if(type_template.size() > 0)
@@ -2109,6 +2231,23 @@ bool Scanner::next(string row_str, unsigned int row)
         }
         case '"':
         {
+
+            if(word == "include")
+            {
+                addMapLex(row,lcInclude,toEnumString(lcInclude),word);
+
+
+                s2.erase(0,i);
+
+                s2.erase(0,1);
+                s2.erase(s2.size()-1,s2.size());
+                addWordIncludes(lcInclude,s2);
+
+                addMapLex(row,lcInclude,s2,s2);
+                word ="";
+                return true;
+            }
+
             if(flag_lcQuotes)
             {
                 flag_lcQuotes = false;
@@ -2390,10 +2529,16 @@ bool Scanner::next(string row_str, unsigned int row)
             continue;
             break;
         }
+        case '\t':
+        {
+            continue;
+        }
         }
 
         word +=row_str[i];
     }
+
+
 
 
     //Проверка на ключевое слово
@@ -2438,6 +2583,159 @@ bool Scanner::next(string row_str, unsigned int row)
     return true;
 }
 
+map<int, vector<map<LexClass, map<string, string> > > > Scanner::getMapWorldLex()
+{
+    return map_word_lex;
+}
+
+string Scanner::getLexString()
+{
+    stringstream file_sss;
+
+    // for(unsigned int i=0;i < scan.list_word_lex_string.size();i++)
+
+    for(auto it= map_word_lex.begin(); it !=map_word_lex.end();it++)
+    {
+
+
+        if(it->first < countTab.size())
+        {
+//            if(it->first >= 0)
+//            {
+//                if(countTab[it->first] != "")
+//                {
+//                  file_sss << countTab[it->first];
+//                }
+//            }
+
+             file_sss << countTab[it->first];
+        }
+
+        auto vector_lex = it->second;
+
+        //идем по вектору лексем
+        for(unsigned int j=0; j < vector_lex.size();j++)
+        {
+            //идем по лексемам
+            for(auto& item_lex : vector_lex[j])
+            {
+                //идем по значениям
+                for(auto& item_data : item_lex.second)
+                {
+
+                    file_sss << item_data.first << " ";
+                }
+            }
+        }
+
+        if(it->first != map_word_lex.size()-1)
+            file_sss << '\n';
+        /*
+        auto ch = scan.list_word_lex_string[i];
+        string ch_next = "";
+        string ch_above = "";
+        string ch_double_above = "";
+
+        if(i < scan.list_word_lex_string.size()-1)
+        {
+            ch_next = scan.list_word_lex_string[i+1];
+        }
+        if(i > 0)
+        {
+            ch_above = scan.list_word_lex_string[i-1];
+        }
+        if(i > 1)
+        {
+            ch_double_above = scan.list_word_lex_string[i-2];
+        }
+
+        if(ch == "keyFOR")
+        {
+            flag_dontNextLine = true;
+        }
+
+
+        if(ch == "lcLFigure")
+        {
+            flag_dontNextLine = false;
+            flag_ferstWordInStr = true;
+            file_sss <<"\r\n";
+            for (int j=0; j < count_t;j++)
+            {
+                file_sss << "\t";
+            }
+
+            file_sss<< ch <<"\r\n";
+
+            count_t++;
+        }
+        else
+        {
+            if(ch == "lcRFigure")
+            {
+                count_t--;;
+                flag_ferstWordInStr= true;
+                flag_enum = false;
+            }
+
+            if(flag_ferstWordInStr)
+            {
+                for (int j=0; j < count_t;j++)
+                {
+                    file_sss << "\t";
+                }
+
+                flag_ferstWordInStr = false;
+            }
+
+            if(ch == "lcSemicolon" && ch_next != "lcSemicolon" && ch_next != "lcRCircle" && !flag_dontNextLine) //
+            {
+                flag_ferstWordInStr = true;
+            }
+
+            file_sss << ch <<" ";
+        }
+
+        if((ch == "lcSemicolon" && ch_next != "lcSemicolon" && ch_next != "lcRCircle" && !flag_dontNextLine) || ch == "lcRFigure")
+        {
+            file_sss <<"\r\n";
+            flag_ferstWordInStr= true;
+            flag_dontNextLine = false;
+        }
+        //        if(ch_above == "lcInclude")
+        //        {
+        //           file_sss <<"\r\n";
+        //           flag_ferstWordInStr= true;
+        //           flag_dontNextLine = false;
+        //        }
+
+        //кастыль
+        if(ch_double_above == "lcLattice" || (ch_double_above == "keyCASE" && (ch_next != "lcLFigure" && ch_next !="lcApostrophe")))
+        {
+            file_sss <<"\r\n";
+            flag_ferstWordInStr= true;
+            flag_dontNextLine = false;
+
+        }
+
+        if(ch == "keyENUM")
+        {
+            flag_enum = true;
+        }
+
+        if((ch == "lcComma" || ch == "lcColon") &&  (flag_enum || ch_above == "keyPUBLIC" || ch_above == "keyPRIVATE" || ch_above == "keyPROTECTED"))
+        {
+            file_sss <<"\r\n";
+            flag_ferstWordInStr= true;
+            flag_dontNextLine = false;
+        }
+        */
+    }
+
+    string str = file_sss.str();
+    return str;
+}
+
 void Scanner::zapolnenieOperationsPriorityForward(vector<string> operands, int priority, int forward)
 {
     auto search =mapOperationsAndPriority.find(priority);
@@ -2466,9 +2764,6 @@ void Scanner::addMapLex(unsigned int row, LexClass lex, string lex_str, string d
 {
     map<LexClass,map<string,string>> map_lex;
     map<string,string> map_lex_string;
-
-
-
 
     //
     auto search =map_word_lex.find(row);
@@ -2833,7 +3128,7 @@ string Scanner::toEnumString(LexClass lex)
         findLex = "lcRSquare";
         break;
     case lcSlash:
-        findLex = "lcPercent";
+        findLex = "lcSlash";
         break;
     case lcPercent:
         findLex = "lcPercent";
