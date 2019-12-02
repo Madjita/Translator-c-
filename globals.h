@@ -29,6 +29,7 @@ enum LexClass
     lcSmallerEQ,		// меньше или равно '<='
     lcLargerEQ,			// больше или равно '>='
 
+    lcWave,				// ~
     lcLink,             // ссылка '->'
     lcPoint,			// точка '.'
     lcStick,			// палка '|'
@@ -128,39 +129,25 @@ enum LexClass
     keySTATIC_CAST,
     keyUSING,
 
+    //Временные (реализованны из STD ) может нужно убрать как функции а не ключевые слова
+    keyCOUT,
+    keyENDL,
+
 
 
     //Еще нету
 
     lcTab,              //табуляций '\t'
-
-
-
     lc2Points,			// две точки подряд '..'
 
-
-
-
-    lcWave,				// ~
-
-
-
     lcNoValue,			// нет значения ''
-
     lcError,			// ошибка
-
-
     lcComment,			// комментарий
     lcSpace,			// пустой
     lcIgnore,			// игнорируемый
-
     lcIntNum,			// целое число
     lcRealNum,			// действительное число
     lcFloatNum,         // дробное число
-
-
-
-
     lcId,				// идентификатор
 
     //lcQualident,        // квалидент (двойной идентификатор)

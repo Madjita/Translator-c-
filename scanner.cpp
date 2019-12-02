@@ -108,6 +108,10 @@ Scanner::Scanner()
     addKeyWords(keySTATIC_CAST,"static_cast");
     addKeyWords(keyUSING,"using");
 
+    //Временные
+    addKeyWords(keyCOUT,"cout");
+    addKeyWords(keyENDL,"endl");
+
 
 
     //Массив типов данных
@@ -563,28 +567,240 @@ bool Scanner::next(string row_str, unsigned int row)
         }
         case ';':
         {
+
             if(flag_lcQuotes)
             {
                 continue;
             }
 
+
+            if(type_template.size() >0)
+            {
+
+                addHardTypeVariable(row,word,type_template,type_template_lex);
+                type_template = "";
+                type_template_lex = "";
+                word ="";
+                continue;
+            }
+
+            cout <<"Row "<< row << " befor ';': " << word <<endl;
+
             if(word.size() > 0)
             {
-                //Так как мы нашли равенство то добать переменную в область видимости
-                //Значит данное значение скороее всего Имя переменоой
-                addMapLex(row,lcLabel,toEnumString(lcLabel),word);
-                auto item = map_word_lex.at(row);
-                auto itemType = item.begin()->begin()->second;
-                auto itemName = item[item.size()-1].begin()->second;
-                itemSpaces->push_back_variables(itemName,itemType);
+
+                bool ok = false;
+                //это ключевое слово ?
+                auto searchKey =keyWords.find(word);
+                if(searchKey != keyWords.end())
+                {
+                    //Найденное ключевое слово является ли типом данных ?
+                    ok = findTypeData(searchKey->first);
+
+                    if(ok) // Это тип данных
+                    {
+                        // Это ключевое слово и тип данных
+                        addMapLex(row,searchKey->second,toEnumString(searchKey->second),searchKey->first);
+                    }
+                    else {
+                        //Это не тип данных
+                        addMapLex(row,searchKey->second,toEnumString(searchKey->second),searchKey->first);
+                    }
+                }
+                else
+                {
+
+
+
+                    //Это не ключевое слово
+
+                    // Это тип данных ?
+                    ok = findTypeData(word);
+                    if(ok) // Это тип данных
+                    {
+                        auto searchType = types[word];
+                        addMapLex(row,searchType,toEnumString(searchType),word);
+                        word ="";
+                        continue;
+                    }
+                    else {
+                        //Это не тип данных
+
+
+                        // Есть ли предыдущие лексемы ?
+                        if(map_word_lex.at(row).size() > 0)
+                        {
+                            //Это имя переменной ?
+                            //Предыдущая ликсема является типом данных?
+
+                            auto firstLex = getFirslex(row);
+
+                            if(firstLex == "typedef")
+                            {
+                                //Данная переменная является новым типом данных
+                                //Проверка на переменную имени класса
+                                addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+                                addTypes(lcLabel,word);
+                                word ="";
+                                continue;
+                            }
+
+                            if(firstLex == "using")
+                            {
+                                auto lastLex = getLastlex(row);
+
+                                if(lastLex == "namespace")
+                                {
+                                    //Данная переменная является новым типом данных
+                                    //Проверка на переменную имени класса
+                                    addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+                                    addTypes(lcLabel,word);
+                                    word ="";
+                                    continue;
+                                }
+
+                            }
+
+
+                            auto lastLex = getLastlex(row);
+
+                            if(row,map_word_lex.at(row).size() > 2)
+                            {
+                                auto lexPosition = getlex(row,map_word_lex.at(row).size()-2);
+                                if(lexPosition == "=" && lastLex == "*")
+                                {
+                                    //Перед именем переменной стоит указатель разыминовывания
+                                    //Значит данное значение скороее всего Имя переменоой
+                                    addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+
+                                    //Нужно для того чтобы вернуться на последний элимент из списка
+                                    itemSpaces = listItemSpaces.back();
+                                    addMapLex(row,lcSemicolon,toEnumString(lcSemicolon),";");
+                                    word ="";
+                                    continue;
+                                }
+                            }
+
+                            ok = findTypeData(lastLex);
+                            if(ok)
+                            {
+                                //Предыдущее значчение является типом
+                                //Значит данное значение скороее всего Имя переменоой
+
+                                //Новое
+                                //Проверить в текущем объекте простарнства имен на существование переменной
+                                bool findWord = false; // флаг объявленна ли переменная
+                                for(auto item : itemSpaces->variables)
+                                {
+                                    //написать проверку на меременную
+                                    auto nameWord = item.first.begin()->second;
+                                    if(word == nameWord)
+                                    {
+                                        //Значит дананя переменная уже есть
+                                        findWord = true;
+                                    }
+                                }
+                                if(findWord)
+                                {
+                                    //Переменная существует в списке объявлений
+
+                                    if(firstLex == "*")
+                                    {
+                                        //Разименование объекта
+                                        //Переменная существует в списке объявлений
+                                        addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+                                    }
+                                    else
+                                    {
+                                        //Значит дананя переменная уже есть
+                                        //Так как мы были в '=' значит ошибка присваения
+                                        cout<<endl;
+                                        cout <<"Row["<<row<<"] ) ERROR : Redeclaring a declared variable = '" <<word<<"'"<<endl;
+                                        cout<<endl;
+                                        return false;
+                                    }
+
+
+                                    //Проверить не логические ли происходят с переменной ?
+                                    //Ошибка обявлениия переменной второй раз
+                                    //Error
+                                }
+                                else
+                                {
+                                    //Переменная не существует в списке объявлений
+                                    //Проверить не логические ли происходят с переменной ?
+
+                                    //Так как мы нашли равенство то добать переменную в область видимости
+                                    //Значит данное значение скороее всего Имя переменоой
+                                    addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+                                    auto item = map_word_lex.at(row);
+                                    auto itemType = item.begin()->begin()->second;
+                                    auto itemName = item[item.size()-1].begin()->second;
+                                    itemSpaces->push_back_variables(itemName,itemType);
+                                }
+                            }
+                            else {
+                                //Предыдущее значчение не является типом
+
+                                auto lable = findLable(word);
+
+                                switch (lable)
+                                {
+                                case 0:
+                                {
+                                    ok = false;
+                                    //Это обявленная переменная?
+                                    ok = findWordWords(word,itemSpaces);
+                                    if(ok)
+                                    {
+                                        //да
+                                        addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+                                    }
+                                    else {
+
+                                        cout <<endl;
+                                        //Это тип данных?
+                                        ok = findTypeData(word);
+                                        if(ok)
+                                        {
+                                            addMapLex(row,lcType,toEnumString(lcType),word);
+                                        }
+                                        else
+                                        {
+                                            //ПРоверить слишком много проверок на типы данных
+                                            //Добавить в пространство имен
+                                            addVariable(row,word);
+                                        }
+
+                                    }
+                                    break;
+                                }
+                                case 1: //Целое число
+                                    addMapLex(row,kwINT,toEnumString(kwINT),word);
+                                    break;
+                                case -1: //Дробное
+                                    addMapLex(row,kwFLOAT,toEnumString(kwFLOAT),word);
+                                    break;
+                                }
+
+                            }
+                        }
+                        else {
+                            //Предыдущих лексем нет то
+                            //Значит данное значение скороее всего Имя переменоой
+                            addMapLex(row,lcLabel,toEnumString(lcLabel),word);
+                            ok = addWordWords(lcLabel,word); // добавили переменную в массив переменных
+                        }
+                    }
+
+                }
+
             }
+
 
 
             //Нужно для того чтобы вернуться на последний элимент из списка
             itemSpaces = listItemSpaces.back();
-
-
-
             addMapLex(row,lcSemicolon,toEnumString(lcSemicolon),";");
             word ="";
             continue;
@@ -2533,6 +2749,12 @@ bool Scanner::next(string row_str, unsigned int row)
         {
             continue;
         }
+        case '~':
+        {
+            addMapLex(row,lcWave,toEnumString(lcWave),"~");
+            word ="";
+            continue;
+        }
         }
 
         word +=row_str[i];
@@ -2882,6 +3104,7 @@ bool Scanner::addClassWords(LexClass data, string key)
 
 string Scanner::toEnumString(LexClass lex)
 {
+
     string findLex;
     switch (lex)
     {
@@ -3060,6 +3283,11 @@ string Scanner::toEnumString(LexClass lex)
     case keyUSING:
         findLex = "keyUSING";
         break;
+    case keyCOUT:
+        findLex = "keyCOUT";
+        break;
+    case keyENDL:
+        findLex = "keyENDL";
     }
 
 
@@ -3085,6 +3313,9 @@ string Scanner::toEnumString(LexClass lex)
     }
 
     switch (lex) {
+    case lcWave:
+        findLex = "lcWave";
+        break;
     case lcTypeTemplate:
         findLex = "lcTypeTemplate";
         break;

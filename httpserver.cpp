@@ -643,6 +643,11 @@ void HttpServer::worker(future<bool> stopFlag)
 
             }
 
+            if(string(get) == "/getVariabls")
+            {
+
+            }
+
 
             if(string(get) == "/")
             {
