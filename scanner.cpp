@@ -263,15 +263,11 @@ bool Scanner::next(string row_str, unsigned int row)
         }
     }
 
-<<<<<<< HEAD
     if(row_str.size() == 0 )
     {
          addMapLex(row,lcNull,"","");
     }
     countTab.push_back(countTab_);
-=======
-
->>>>>>> 490ff78424c822ea621471b9f626b8f3fca740d1
 
     for (unsigned int i=0;i < row_str.size();i++)
     {
@@ -2543,15 +2539,7 @@ bool Scanner::next(string row_str, unsigned int row)
     }
 
 
-<<<<<<< HEAD
 
-=======
-    if(row_str.size() == 0 )
-    {
-         addMapLex(row,lcNull,"","");
-    }
-    countTab.push_back(countTab_);
->>>>>>> 490ff78424c822ea621471b9f626b8f3fca740d1
 
     //Проверка на ключевое слово
     //это ключевое слово ?
@@ -2609,7 +2597,6 @@ string Scanner::getLexString()
     for(auto it= map_word_lex.begin(); it !=map_word_lex.end();it++)
     {
 
-<<<<<<< HEAD
 
         if(it->first < countTab.size())
         {
@@ -2622,17 +2609,6 @@ string Scanner::getLexString()
 //            }
 
              file_sss << countTab[it->first];
-=======
-        if(it->first < countTab.size())
-        {
-            if(it->first-1 > 0)
-            {
-                if(countTab[it->first-1] != "")
-                {
-                  file_sss << countTab[it->first-1];
-                }
-            }
->>>>>>> 490ff78424c822ea621471b9f626b8f3fca740d1
         }
 
         auto vector_lex = it->second;
